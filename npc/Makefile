@@ -43,7 +43,7 @@ VERILATOR_FLAGS += -Ivsrc
 VERILATOR_FLAGS += -Icsrc
 
 # Input files for Verilator
-VERILATOR_INPUT = top.sv main.cpp
+VERILATOR_INPUT = top.sv csrc/main.cpp
 
 
 all: sim
