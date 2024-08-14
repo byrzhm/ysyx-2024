@@ -38,6 +38,9 @@ VERILATOR_FLAGS += --build -j 0
 # Add this trace to get a backtrace in gdb
 #VERILATOR_FLAGS += --gdbbt
 
+# Search path
+VERILATOR_FLAGS += -Ivsrc
+VERILATOR_FLAGS += -Icsrc
 
 # Input files for Verilator
 VERILATOR_INPUT = -f vsrc/top.sv csrc/main.cpp
