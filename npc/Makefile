@@ -24,7 +24,7 @@ VERILATOR_FLAGS += -cc --exe
 # Warn abount lint issues; may not want this on less solid designs
 VERILATOR_FLAGS += -Wall
 # Make waveforms ($dumpfile, $dumpvars)
-# VERILATOR_FLAGS += --trace
+VERILATOR_FLAGS += --trace
 # Check SystemVerilog assertions
 # VERILATOR_FLAGS += --assert
 # Generate coverage analysis
