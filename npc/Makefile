@@ -23,8 +23,8 @@ VERILATOR_FLAGS += -cc --exe
 # VERILATOR_FLAGS += -x-assign fast
 # Warn abount lint issues; may not want this on less solid designs
 VERILATOR_FLAGS += -Wall
-# Make waveforms
-VERILATOR_FLAGS += --trace
+# Make waveforms ($dumpfile, $dumpvars)
+# VERILATOR_FLAGS += --trace
 # Check SystemVerilog assertions
 # VERILATOR_FLAGS += --assert
 # Generate coverage analysis
@@ -56,21 +56,14 @@ sim:
 
 	@echo
 	@echo "-- RUN ----------------------------"
-	build/Vtop +trace
+	build/Vtop
 
 	@echo
 	@echo "-- DONE --------------------"
 	@echo "To see waveforms, open vlt_dump.vcd in a waveform viewer"
 	@echo
 
-include ../Makefile
-
-######################################################################
-# Other targets
-
-show-config:
-	$(VERILATOR) -V
-
-maintainer-copy::
-clean mostlyclean distclean maintainer-clean::
+clean:
 	-rm -rf build logs *.log *.dmp *.vpd coverage.dat core
+
+include ../Makefile
