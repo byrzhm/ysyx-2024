@@ -23,7 +23,7 @@ VERILATOR_FLAGS += -cc --exe
 # VERILATOR_FLAGS += -x-assign fast
 # Warn abount lint issues; may not want this on less solid designs
 VERILATOR_FLAGS += -Wall
-# Make waveforms ($dumpfile, $dumpvars)
+# Make waveforms ($dumpfile, $dumpvars, link verilated_vcd_c)
 VERILATOR_FLAGS += --trace
 # Check SystemVerilog assertions
 # VERILATOR_FLAGS += --assert
@@ -56,11 +56,11 @@ sim:
 
 	@echo
 	@echo "-- RUN ----------------------------"
-	build/Vtop
+	build/Vtop +trace
 
 	@echo
 	@echo "-- DONE --------------------"
-	@echo "To see waveforms, open vlt_dump.vcd in a waveform viewer"
+	@echo "To see waveforms, open dump.vcd in a waveform viewer"
 	@echo
 
 clean:
