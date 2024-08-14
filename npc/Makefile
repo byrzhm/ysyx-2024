@@ -1,3 +1,12 @@
+TOPNAME = top
+NXDC_FILES = constr/top.nxdc
+INC_PATH ?=
+
+
+BUILD_DIR = ./build
+OBJ_DIR = $(BUILD_DIR)/obj_dir
+BIN = $(BUILD_DIR)/$(TOPNAME)
+
 ifneq ($(words $(CURDIR)),1)
  $(error Unsupported: GNU Make cannot build in directories containing spaces, build elsewhere: '$(CURDIR)')
 endif
@@ -18,19 +27,18 @@ endif
 # Generate C++ in executable form
 VERILATOR_FLAGS += -cc --exe
 # Generate makefile dependencies (not shown as complicates the Makefile)
-#VERILATOR_FLAGS += -MMD
+VERILATOR_FLAGS += -MMD
 # Optimize
-# VERILATOR_FLAGS += -x-assign fast
+VERILATOR_FLAGS += -x-assign fast
 # Warn abount lint issues; may not want this on less solid designs
 VERILATOR_FLAGS += -Wall
 # Make waveforms ($dumpfile, $dumpvars, link verilated_vcd_c)
-VERILATOR_FLAGS += --trace
+# VERILATOR_FLAGS += --trace
 # Check SystemVerilog assertions
 # VERILATOR_FLAGS += --assert
+VERILATOR_FLAGS += --noassert
 # Generate coverage analysis
 # VERILATOR_FLAGS += --coverage
-# Specify output directory
-VERILATOR_FLAGS += --Mdir build
 # Build at the same time
 VERILATOR_FLAGS += --build -j 0
 # Run Verilator in debug mode
@@ -38,32 +46,43 @@ VERILATOR_FLAGS += --build -j 0
 # Add this trace to get a backtrace in gdb
 #VERILATOR_FLAGS += --gdbbt
 
-# Search path
-VERILATOR_FLAGS += -Ivsrc
-VERILATOR_FLAGS += -Icsrc
+default: $(BIN)
 
-# Input files for Verilator
-VERILATOR_INPUT = top.sv csrc/main.cpp
+$(shell mkdir -p $(BUILD_DIR))
 
+# constraint file
+SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
+$(SRC_AUTO_BIND): $(NXDC_FILES)
+	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
 
-all: sim
+# project source
+VSRCS = $(shell find $(abspath ./vsrc) -name "*.sv")
+CSRCS = $(shell find $(abspath ./csrc) -name "*.cpp")
+CSRCS += $(SRC_AUTO_BIND)
 
-sim:
+# rules for NVBoard
+include $(NVBOARD_HOME)/scripts/nvboard.mk
+
+# rules for verilator
+INCFLAGS = $(addprefix -I, $(INC_PATH))
+CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
+
+$(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
+	@rm -rf $(OBJ_DIR)
+	$(VERILATOR) $(VERILATOR_FLAGS) \
+		--top-module $(TOPNAME) $^ \
+		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
+		--Mdir $(OBJ_DIR) -o $(abspath $(BIN))
+
+all: default
+
+sim: $(BIN)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	@echo
-	@echo "-- VERILATE & BUILD ---------------"
-	$(VERILATOR) $(VERILATOR_FLAGS) $(VERILATOR_INPUT)
-
-	@echo
-	@echo "-- RUN ----------------------------"
-	build/Vtop
-
-	@echo
-	@echo "-- DONE --------------------"
-	@echo "To see waveforms, open dump.vcd in a waveform viewer"
-	@echo
+	@$^
 
 clean:
-	-rm -rf build logs *.log *.dmp *.vpd coverage.dat core
+	rm -rf $(BUILD_DIR)
+
+.PHONY: default all clean run
 
 include ../Makefile
