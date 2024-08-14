@@ -56,7 +56,7 @@ sim:
 
 	@echo
 	@echo "-- RUN ----------------------------"
-	build/Vtop +trace
+	build/Vtop
 
 	@echo
 	@echo "-- DONE --------------------"

@@ -10,6 +10,7 @@ int main(int argc, char *argv[]) {
   const std::unique_ptr<VerilatedContext> contextp = std::make_unique<VerilatedContext>();
   contextp->commandArgs(argc, argv);
   const std::unique_ptr<Vtop> top = std::make_unique<Vtop>(contextp.get(), "TOP");
+  Verilated::traceEverOn(true);
   VerilatedVcdC* tfp = new VerilatedVcdC;
   top->trace(tfp, 99); // Trace 99 levels of hierarchy
   tfp->open("build/dump.vcd");
