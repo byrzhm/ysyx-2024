@@ -88,11 +88,14 @@ static int cmd_x(char *args) {
   int count, addr; // addr is an expr
   sscanf(args, "%d %x", &count, &addr);
   for (int i = 0; i < count; ++i) {
-    printf("%x", paddr_read(addr + i, 1));
+    printf("%02x ", paddr_read(addr + i, 1));
 
     if ((i + 1) % 16 == 0) {
       printf("\n");
     }
+  }
+  if (count % 16) {
+    printf("\n");
   }
   return 0;
 }
