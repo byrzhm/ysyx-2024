@@ -24,6 +24,7 @@ static int is_batch_mode = false;
 void init_regex();
 void init_wp_pool();
 void isa_reg_display();
+word_t paddr_read(paddr_t addr, int len);
 
 /* We use the `readline' library to provide more flexibility to read from stdin.
  */
@@ -83,7 +84,18 @@ static int cmd_info(char *args) {
   return 0;
 }
 
-// static int cmd_x(char *args);
+static int cmd_x(char *args) {
+  int count, addr; // addr is an expr
+  sscanf(args, "%d %x", &count, &addr);
+  for (int i = 0; i < count; ++i) {
+    printf("%x", paddr_read(addr + i, 1));
+
+    if ((i + 1) % 16 == 0) {
+      printf("\n");
+    }
+  }
+  return 0;
+}
 
 // static int cmd_p(char *args);
 
@@ -103,6 +115,7 @@ static struct {
     {"q", "Exit NEMU", cmd_q},
     {"si", "Execute one machine instruction and do count times", cmd_si},
     {"info", "Display pragram status", cmd_info},
+    {"x", "Examine memory", cmd_x},
 
     /* TODO: Add more commands */
 
