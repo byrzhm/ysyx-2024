@@ -23,6 +23,7 @@ static int is_batch_mode = false;
 
 void init_regex();
 void init_wp_pool();
+void isa_reg_display();
 
 /* We use the `readline' library to provide more flexibility to read from stdin.
  */
@@ -62,7 +63,25 @@ static int cmd_si(char *args) {
   return 0;
 }
 
-// static int cmd_info(char *args);
+static int cmd_info(char *args) {
+  if (!args) {
+    printf("info r -- List of integer registers and their contents\n");
+    printf("info w -- Status of all watchpoints\n");
+    return 0;
+  }
+
+  if (!strcmp(args, "r")) {
+    isa_reg_display();
+    return 0;
+  }
+
+  if (!strcmp(args, "w")) {
+    Assert(0, "Not implemented");
+    return 0;
+  }
+
+  return 0;
+}
 
 // static int cmd_x(char *args);
 
@@ -83,6 +102,7 @@ static struct {
     {"c", "Continue the execution of the program", cmd_c},
     {"q", "Exit NEMU", cmd_q},
     {"si", "Execute one machine instruction and do count times", cmd_si},
+    {"info", "Display pragram status", cmd_info},
 
     /* TODO: Add more commands */
 
