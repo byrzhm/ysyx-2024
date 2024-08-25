@@ -85,8 +85,11 @@ static int cmd_info(char *args) {
 }
 
 static int cmd_x(char *args) {
-  int count, addr; // addr is an expr
-  sscanf(args, "%d %x", &count, &addr);
+  char *addr_expr = NULL;
+  int count, addr;
+  bool success = true;
+  sscanf(args, "%d %s", &count, addr_expr);
+  addr = expr(addr_expr, &success);
   for (int i = 0; i < count; ++i) {
     printf("%02x ", paddr_read(addr + i, 1));
 

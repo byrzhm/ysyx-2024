@@ -87,7 +87,7 @@ static bool make_token(char *e) {
 
   while (e[position] != '\0') {
     /* Try all rules one by one. */
-    for (i = 0; i < NR_REGEX; i ++) {
+    for (i = 0; i < NR_REGEX; i++) {
       if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
@@ -102,10 +102,17 @@ static bool make_token(char *e) {
          * of tokens, some extra actions should be performed.
          */
 
-        switch (rules[i].token_type) {
-          default: TODO();
-        }
+        Assert(nr_token < 32, "Currently, number of tokens should be less than 32");
 
+        tokens[nr_token].type = rules[i].token_type;
+        switch (rules[i].token_type) {
+          case TK_DEC: {
+            Assert(substr_len < 32, "length of decimal should be less than 32");
+            strncpy(tokens[nr_token].str, substr_start, substr_len);
+          } break;
+          default: break;
+        }
+        ++nr_token;
         break;
       }
     }
