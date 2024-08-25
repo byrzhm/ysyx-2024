@@ -102,7 +102,7 @@ static bool make_token(char *e) {
          * of tokens, some extra actions should be performed.
          */
         if (rules[i].token_type == TK_NOTYPE) {
-          continue;
+          break;
         }
 
         Assert(nr_token < 32, "Currently, number of tokens should be less than 32");
