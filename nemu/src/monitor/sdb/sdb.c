@@ -86,7 +86,7 @@ static int cmd_info(char *args) {
 
 static int cmd_x(char *args) {
   char *count_str = strtok(args, " ");
-  char *addr_str = strtok(args, " ");
+  char *addr_str = strtok(NULL, " ");
   int count, addr;
   bool success = true;
   sscanf(count_str, "%d", &count);
