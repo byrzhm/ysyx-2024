@@ -126,6 +126,85 @@ static bool make_token(char *e) {
   return true;
 }
 
+static bool check_parentheses(int p, int q) {
+  if (tokens[p].type != '(' || tokens[q].type != ')') {
+    return false;
+  }
+  int cnt = 0;
+  for (int i = p; i <= q; ++i) {
+    if (tokens[i].type == '(') {
+      ++cnt;
+    } else if (tokens[i].type == ')') {
+      --cnt;
+    }
+    if (cnt == 0 && i < q) {
+      return false;
+    }
+  }
+  return true;
+}
+
+static int dominant_operator(int p, int q) {
+  int cnt = 0;
+  int op = -1;
+  int priority = 0;
+  for (int i = p; i <= q; ++i) {
+    if (tokens[i].type == '(') {
+      ++cnt;
+    } else if (tokens[i].type == ')') {
+      --cnt;
+    } else if (cnt == 0) {
+      if (tokens[i].type == '*' || tokens[i].type == '/') {
+        if (priority < 1) {
+          priority = 1;
+          op = i;
+        }
+      } else if (tokens[i].type == '+' || tokens[i].type == '-') {
+        if (priority < 2) {
+          priority = 2;
+          op = i;
+        }
+      } else if (tokens[i].type == TK_EQ) {
+        if (priority < 3) {
+          priority = 3;
+          op = i;
+        }
+      }
+    }
+  }
+  return op;
+}
+
+static word_t eval(int p, int q) {
+  if (p > q) {
+    /* Bad expression */
+    return -1;
+  } else if (p == q) {
+    /* Single token.
+     * For now this token should be a number.
+     * Return the value of the number.
+     */
+    return tokens[p].type == TK_DEC ? atoi(tokens[p].str) : -1;
+  } else if (check_parentheses(p, q) == true) {
+    /* The expression is surrounded by a matched pair of parentheses.
+     * If that is the case, just throw away the parentheses.
+     */
+    return eval(p + 1, q - 1);
+  } else {
+    /* We should do more things here. */
+    int op = dominant_operator(p, q);
+    word_t val1 = eval(p, op - 1);
+    word_t val2 = eval(op + 1, q);
+    switch (tokens[op].type) {
+      case '+': return val1 + val2;
+      case '-': return val1 - val2;
+      case '*': return val1 * val2;
+      case '/': return val1 / val2;
+      case TK_EQ: return val1 == val2;
+      default: Assert(0, "Invalid operator");
+    }
+  }
+}
 
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
@@ -133,8 +212,23 @@ word_t expr(char *e, bool *success) {
     return 0;
   }
 
-  /* TODO: Insert codes to evaluate the expression. */
-  TODO();
+  int cnt = 0;
+  for (int i = 0; i < nr_token; ++i) {
+    if (tokens[i].type == '(') {
+      ++cnt;
+    } else if (tokens[i].type == ')') {
+      --cnt;
+    }
+    if (cnt < 0) {
+      *success = false;
+      return 0;
+    }
+  }
 
-  return 0;
+  word_t ret = eval(0, nr_token - 1);
+  *success = true;
+
+  return ret;
 }
+
+

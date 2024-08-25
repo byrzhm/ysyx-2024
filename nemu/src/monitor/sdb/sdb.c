@@ -85,15 +85,18 @@ static int cmd_info(char *args) {
 }
 
 static int cmd_x(char *args) {
-  char *count_str = strtok(args, " ");
-  char *addr_str = strtok(NULL, "");
+  char *count_str = strtok(args, " "); // first token is count
+  char *addr_str = strtok(NULL, ""); // remaining string is address expression
   int count, addr;
   bool success = true;
   sscanf(count_str, "%d", &count);
   addr = expr(addr_str, &success);
+  if (!success) {
+    printf("Invalid expression\n");
+    return 0;
+  }
   for (int i = 0; i < count; ++i) {
     printf("%02x ", paddr_read(addr + i, 1));
-
     if ((i + 1) % 16 == 0) {
       printf("\n");
     }
@@ -104,7 +107,16 @@ static int cmd_x(char *args) {
   return 0;
 }
 
-// static int cmd_p(char *args);
+static int cmd_p(char *args) {
+  bool success = true;
+  word_t result = expr(args, &success);
+  if (success) {
+    printf("0x%x\n", result);
+  } else {
+    printf("Invalid expression\n");
+  }
+  return 0;
+}
 
 // static int cmd_w(char *args);
 
@@ -123,6 +135,7 @@ static struct {
     {"si", "Execute one machine instruction and do count times", cmd_si},
     {"info", "Display pragram status", cmd_info},
     {"x", "Examine memory", cmd_x},
+    {"p", "Evaluate expression", cmd_p},
 
     /* TODO: Add more commands */
 
