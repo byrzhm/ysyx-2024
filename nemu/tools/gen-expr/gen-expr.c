@@ -31,8 +31,64 @@ static char *code_format =
 "  return 0; "
 "}";
 
+static int pos = 0;
+static int tok_nr = 0;
+
+static int choose(int n) {
+  return rand() % n;
+}
+
+static void clear() {
+  pos = 0;
+  tok_nr = 0;
+  memset(buf, 0, sizeof(buf));
+}
+
+static void gen(char c) {
+  buf[pos++] = c;
+}
+
+static void gen_lparen() {
+  tok_nr++;
+  gen('(');
+}
+
+static void gen_rparen() {
+  tok_nr++;
+  gen(')');
+}
+
+static void gen_num() {
+  tok_nr++;
+  gen(choose(9) + '1');
+  for (int i = 0; i < choose(8); i++) {
+    gen(choose(10) + '0');
+  }
+}
+
+static void gen_rand_op() {
+  tok_nr++;
+  switch (choose(4)) {
+    case 0: gen('+'); break;
+    case 1: gen('-'); break;
+    case 2: gen('*'); break;
+    case 3:
+    default: gen('/'); break;
+  }
+}
+
 static void gen_rand_expr() {
-  buf[0] = '\0';
+  if (tok_nr > 15) {
+    gen_num();
+    return;
+  }
+
+  switch (choose(3)) {
+    case 0: gen_num(); break;
+    case 1: gen_lparen(); gen_rand_expr(); gen_rparen(); break;
+    case 2:
+    default: gen_rand_expr(); gen_rand_op(); gen_rand_expr(); break;
+  }
 }
 
 int main(int argc, char *argv[]) {
@@ -44,6 +100,7 @@ int main(int argc, char *argv[]) {
   }
   int i;
   for (i = 0; i < loop; i ++) {
+    clear();
     gen_rand_expr();
 
     sprintf(code_buf, code_format, buf);
