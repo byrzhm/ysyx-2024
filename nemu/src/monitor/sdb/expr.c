@@ -193,6 +193,8 @@ static word_t eval(int p, int q) {
      * If that is the case, just throw away the parentheses.
      */
     return eval(p + 1, q - 1);
+  } else if (tokens[p].type == '-') {
+    return -eval(p + 1, q);
   } else {
     /* We should do more things here. */
     int op = dominant_operator(p, q);
