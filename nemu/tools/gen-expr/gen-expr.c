@@ -100,8 +100,10 @@ int main(int argc, char *argv[]) {
   }
   int i;
   for (i = 0; i < loop; i ++) {
-    clear();
-    gen_rand_expr();
+    do {
+      clear();
+      gen_rand_expr();
+    } while (tok_nr < 3 || tok_nr > 31);
 
     sprintf(code_buf, code_format, buf);
 
