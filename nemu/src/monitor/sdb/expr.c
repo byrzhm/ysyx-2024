@@ -158,17 +158,17 @@ static int dominant_operator(int p, int q) {
       --cnt;
     } else if (cnt == 0) {
       if (tokens[i].type == '*' || tokens[i].type == '/') {
-        if (priority < 1) {
+        if (priority <= 1) {
           priority = 1;
           op = i;
         }
       } else if (tokens[i].type == '+' || tokens[i].type == '-') {
-        if (priority < 2) {
+        if (priority <= 2) {
           priority = 2;
           op = i;
         }
       } else if (tokens[i].type == TK_EQ) {
-        if (priority < 3) {
+        if (priority <= 3) {
           priority = 3;
           op = i;
         }
