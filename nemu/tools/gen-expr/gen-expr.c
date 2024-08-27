@@ -68,12 +68,12 @@ static void gen_num() {
 
 static void gen_rand_op() {
   tok_nr++;
-  switch (choose(4)) {
+  switch (choose(5)) {
     case 0: gen('+'); break;
     case 1: gen('-'); break;
     case 2: gen('*'); break;
-    case 3:
-    default: gen('/'); break;
+    case 3: gen('/'); break;
+    default: gen('='); gen('='); break;
   }
 }
 
