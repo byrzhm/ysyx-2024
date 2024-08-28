@@ -140,7 +140,7 @@ static int cmd_test(char *args) {
 
     word_t result = expr(ptr, &success);
 
-    Assert(success, "Invalid expression: %s", buf);
+    Assert(success, "Invalid expression: %s", ptr);
     if (result == expected) {
       printf(ANSI_FMT("Pass\n", ANSI_FG_GREEN));
     } else {
