@@ -38,7 +38,7 @@ static struct rule {
   int token_type;
 } rules[] = {
   {"$x[a-z0-9]+", TK_REG}, // register name
-  {"0x[0-9]+", TK_HEX}, // hexadecimal
+  {"0x[a-f0-9]+", TK_HEX}, // hexadecimal
   {"[0-9]+", TK_DEC},   // decimal
   {" +", TK_NOTYPE},    // spaces
   {"\n+", TK_NOTYPE},    // spaces
