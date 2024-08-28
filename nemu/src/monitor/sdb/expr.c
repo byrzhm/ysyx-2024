@@ -37,7 +37,7 @@ static struct rule {
   const char *regex;
   int token_type;
 } rules[] = {
-  {"$[a-z0-9]+", TK_REG}, // register name
+  {"\\$[a-z0-9]+", TK_REG}, // register name
   {"0x[a-f0-9]+", TK_HEX}, // hexadecimal
   {"[0-9]+", TK_DEC},   // decimal
   {" +", TK_NOTYPE},    // spaces
