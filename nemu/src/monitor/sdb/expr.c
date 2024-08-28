@@ -178,7 +178,7 @@ static bool check_parentheses(int p, int q) {
 
   Assert(cnt == 0, "Guess the cnt should be 0");
 
-  return cnt;
+  return true;
 }
 
 static int dominant_operator(int p, int q) {
