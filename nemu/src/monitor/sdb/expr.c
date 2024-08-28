@@ -160,7 +160,25 @@ static bool make_token(char *e) {
 }
 
 static bool check_parentheses(int p, int q) {
-  return tokens[p].type == '(' && tokens[q].type == ')';
+  if (tokens[p].type != '(' || tokens[q].type != ')') {
+    return false;
+  }
+
+  int cnt = 0;
+  for (int i = p; i <= q; ++i) {
+    if (tokens[i].type == '(') {
+      ++cnt;
+    } else if (tokens[i].type == ')') {
+      --cnt;
+    }
+    if (cnt < 0) {
+      return false;
+    }
+  }
+
+  Assert(cnt == 0, "Guess the cnt should be 0");
+
+  return cnt;
 }
 
 static int dominant_operator(int p, int q) {
@@ -229,7 +247,6 @@ static sword_t eval(int p, int q) {
     return eval(p + 1, q - 1);
   } else {
     int op = dominant_operator(p, q);
-    Assert(op != -1, "Invalid expression");
 
     if (tokens[op].type == TK_DEREF) {
       Assert(op == p, "Dereference should be at the beginning of the expression");
