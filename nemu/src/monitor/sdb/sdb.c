@@ -119,6 +119,38 @@ static int cmd_p(char *args) {
   return 0;
 }
 
+static int cmd_test(char *args) {
+  char filename[] = "/tmp/rand-input.txt";
+  char buf[1024];
+  char *ptr;
+  word_t expected;
+  FILE *fp = fopen(filename, "r");
+
+  printf("Test expression evaluate\n");
+
+  if (fp == NULL) {
+    printf(ANSI_FMT("Error: cannot open file %s\n", ANSI_FG_YELLOW), filename);
+    return 0;
+  }
+  while (fgets(buf, sizeof(buf), fp) != NULL) {
+    bool success = true;
+    ptr = strtok(buf, " ");
+    expected = strtol(ptr, NULL, 10);
+    ptr = strtok(NULL, "");
+
+    word_t result = expr(ptr, &success);
+
+    Assert(success, "Invalid expression: %s", buf);
+    if (result == expected) {
+      printf(ANSI_FMT("Pass\n", ANSI_FG_GREEN));
+    } else {
+      printf(ANSI_FMT("Fail: expected %u, got %u\n", ANSI_FG_RED),
+        expected, result);
+    }
+  }
+  return 0;
+}
+
 // static int cmd_w(char *args);
 
 // static int cmd_d(char *args);
@@ -138,7 +170,9 @@ static struct {
     {"x", "Examine memory", cmd_x},
     {"p", "Evaluate expression", cmd_p},
 
-    /* TODO: Add more commands */
+    {"test", "Test certain functionality", cmd_test},
+
+    // TODO: Add more commands
 
 };
 

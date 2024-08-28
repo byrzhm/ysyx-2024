@@ -58,11 +58,30 @@ static void gen_rparen() {
   gen(')');
 }
 
-static void gen_num() {
+static void gen_hex() {
+  tok_nr++;
+  gen('0');
+  gen('x');
+  gen(choose(6) + 'a');
+  for (int i = 0; i < choose(8) + 1; i++) {
+    gen(choose(16) < 10 ? choose(10) + '0' : choose(6) + 'a');
+  }
+  gen(' ');
+}
+
+static void gen_dec() {
   tok_nr++;
   gen(choose(9) + '1');
   for (int i = 0; i < choose(8); i++) {
     gen(choose(10) + '0');
+  }
+}
+
+static void gen_term() {
+  if (choose(2)) {
+    gen_dec();
+  } else {
+    gen_hex();
   }
 }
 
@@ -77,17 +96,28 @@ static void gen_rand_op() {
   }
 }
 
+static void gen_norm_expr();
+
 static void gen_rand_expr() {
   if (tok_nr > 15) {
-    gen_num();
+    gen_term();
     return;
   }
 
   switch (choose(3)) {
-    case 0: gen_num(); break;
-    case 1: gen_lparen(); gen_rand_expr(); gen_rparen(); break;
-    case 2:
+    case 0: gen_term(); break;
+    case 1: gen_lparen(); gen_norm_expr(); gen_rparen(); break;
     default: gen_rand_expr(); gen_rand_op(); gen_rand_expr(); break;
+  }
+}
+
+static void gen_norm_expr() {
+  if (choose(2)) {
+    gen_term();
+  } else {
+    gen_rand_expr();
+    gen_rand_op();
+    gen_rand_expr();
   }
 }
 
@@ -103,7 +133,7 @@ int main(int argc, char *argv[]) {
     do {
       clear();
       gen_rand_expr();
-    } while (tok_nr < 3 || tok_nr > 31);
+    } while (tok_nr < 3 || tok_nr > 31 || pos > 1023);
 
     sprintf(code_buf, code_format, buf);
 
