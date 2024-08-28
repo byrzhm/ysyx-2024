@@ -247,6 +247,7 @@ static sword_t eval(int p, int q) {
     return eval(p + 1, q - 1);
   } else {
     int op = dominant_operator(p, q);
+    Assert(op != -1, "No dominant operator");
 
     if (tokens[op].type == TK_DEREF) {
       Assert(op == p, "Dereference should be at the beginning of the expression");
