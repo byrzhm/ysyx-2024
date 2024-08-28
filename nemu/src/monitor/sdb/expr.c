@@ -171,7 +171,7 @@ static bool check_parentheses(int p, int q) {
     } else if (tokens[i].type == ')') {
       --cnt;
     }
-    if (cnt < 0) {
+    if (cnt <= 0 && i < q) {
       return false;
     }
   }
