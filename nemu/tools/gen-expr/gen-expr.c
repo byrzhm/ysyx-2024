@@ -85,13 +85,14 @@ static void gen_term() {
   }
 }
 
-static void gen_rand_op() {
+static void gen_nondiv_op() {
   tok_nr++;
-  switch (choose(5)) {
+  switch (choose(7)) {
     case 0: gen('+'); break;
     case 1: gen('-'); break;
     case 2: gen('*'); break;
-    case 3: gen('/'); break;
+    case 3: gen('&'); gen('&'); break;
+    case 4: gen('!'); gen('='); break;
     default: gen('='); gen('='); break;
   }
 }
@@ -107,7 +108,8 @@ static void gen_rand_expr() {
   switch (choose(3)) {
     case 0: gen_term(); break;
     case 1: gen_lparen(); gen_norm_expr(); gen_rparen(); break;
-    default: gen_rand_expr(); gen_rand_op(); gen_rand_expr(); break;
+    case 2: tok_nr += 5; gen_rand_expr(); gen('/'); gen('('); gen_rand_expr(); gen('+'); gen('1'); gen(')'); break;
+    default: gen_rand_expr(); gen_nondiv_op(); gen_rand_expr(); break;
   }
 }
 
@@ -116,7 +118,7 @@ static void gen_norm_expr() {
     gen_term();
   } else {
     gen_rand_expr();
-    gen_rand_op();
+    gen_nondiv_op();
     gen_rand_expr();
   }
 }
