@@ -41,6 +41,7 @@ static struct rule {
   {"0x[0-9]+", TK_HEX}, // hexadecimal
   {"[0-9]+", TK_DEC},   // decimal
   {" +", TK_NOTYPE},    // spaces
+  {"\n+", TK_NOTYPE},    // spaces
   {"&&", TK_AND},       // and
   {"==", TK_EQ},        // equal
   {"!=", TK_NEQ},       // not equal
