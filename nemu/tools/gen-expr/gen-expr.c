@@ -108,7 +108,7 @@ static void gen_rand_expr() {
   switch (choose(3)) {
     case 0: gen_term(); break;
     case 1: gen_lparen(); gen_norm_expr(); gen_rparen(); break;
-    case 2: tok_nr += 5; gen_rand_expr(); gen('/'); gen('('); gen_rand_expr(); gen('+'); gen('1'); gen(')'); break;
+    case 2: tok_nr += 4; gen_rand_expr(); gen('/'); gen('('); gen_rand_expr(); gen('+'); gen_dec(); gen(')'); break;
     default: gen_rand_expr(); gen_nondiv_op(); gen_rand_expr(); break;
   }
 }
@@ -144,7 +144,7 @@ int main(int argc, char *argv[]) {
     fputs(code_buf, fp);
     fclose(fp);
 
-    int ret = system("gcc /tmp/.code.c -o /tmp/.expr");
+    int ret = system("gcc -Wno-overflow /tmp/.code.c -o /tmp/.expr");
     if (ret != 0) continue;
 
     fp = popen("/tmp/.expr", "r");
