@@ -137,6 +137,7 @@ static bool make_token(char *e) {
         Assert(nr_token < MAX_NR_TOKENS, "Currently, number of tokens should be less than 32");
 
         switch (rules[i].token_type) {
+          case TK_HEX:
           case TK_DEC: {
             Assert(substr_len < MAX_TOKEN_LEN, "length of decimal should be less than 32");
             strncpy(tokens[nr_token].str, substr_start, substr_len);
