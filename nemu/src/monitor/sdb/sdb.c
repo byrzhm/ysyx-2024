@@ -23,6 +23,8 @@ static int is_batch_mode = false;
 
 void init_regex();
 void init_wp_pool();
+void new_wp(char *expr, word_t val);
+void free_wp(int no);
 void isa_reg_display();
 word_t paddr_read(paddr_t addr, int len);
 
@@ -151,9 +153,26 @@ static int cmd_test(char *args) {
   return 0;
 }
 
-// static int cmd_w(char *args);
+static int cmd_w(char *args) {
+  bool success;
+  word_t val = expr(args, &success);
 
-// static int cmd_d(char *args);
+  if (!success) {
+    printf("Invalid expression\n");
+    return 0;
+  }
+
+  new_wp(args, val);
+  return 0;
+}
+
+static int cmd_d(char *args) {
+  int no;
+  sscanf(args, "%d", &no);
+  free_wp(no);
+  printf("Watchpoint %d deleted\n", no);
+  return 0;
+}
 
 static int cmd_help(char *args);
 
@@ -172,8 +191,8 @@ static struct {
 
     {"test", "Test certain functionality", cmd_test},
 
-    // TODO: Add more commands
-
+    {"w", "Add watchpoint", cmd_w},
+    {"d", "Delete watchpoint", cmd_d},
 };
 
 #define NR_CMD ARRLEN(cmd_table)
