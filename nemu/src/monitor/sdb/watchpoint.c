@@ -98,6 +98,7 @@ bool polling_wp() {
       printf("\tNew value = %u\n", val);
       wp->prev_val = val;
     }
+    wp = wp->next;
   }
   return changed;
 }
