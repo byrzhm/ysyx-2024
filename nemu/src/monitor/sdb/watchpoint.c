@@ -20,9 +20,8 @@
 typedef struct watchpoint {
   int NO;
   struct watchpoint *next;
-
-  /* TODO: Add more members if necessary */
-
+  char *expr;
+  word_t prev_val;
 } WP;
 
 static WP wp_pool[NR_WP] = {};
@@ -39,5 +38,81 @@ void init_wp_pool() {
   free_ = wp_pool;
 }
 
-/* TODO: Implement the functionality of watchpoint */
+void new_wp(char *expr, word_t val) {
+  WP *wp = NULL;
 
+  if (free_ == NULL) {
+    printf("No enough watchpoints.\n");
+    assert(0);
+  }
+
+  wp = free_;
+  free_ = free_->next;
+  wp->next = head;
+  head = wp;
+
+  wp->expr = malloc(strlen(expr) + 1);
+  strcpy(wp->expr, expr);
+  wp->prev_val = val;
+}
+
+void free_wp(int no) {
+  WP *wp = &wp_pool[no];
+  if (wp->expr != NULL) {
+    free(wp->expr);
+    wp->expr = NULL;
+  }
+
+  WP *p = head;
+  if (p == wp) {
+    head = head->next;
+    wp->next = free_;
+    free_ = wp;
+    return;
+  }
+  while (p->next != NULL) {
+    if (p->next == wp) {
+      p->next = wp->next;
+      wp->next = free_;
+      free_ = wp;
+      return;
+    }
+    p = p->next;
+  }
+  Assert(0, "Watchpoint not found.");
+}
+
+bool polling_wp() {
+  WP *wp = head;
+  bool changed = false;
+
+  while (wp != NULL) {
+    bool success;
+    word_t val = expr(wp->expr, &success);
+    Assert(success, "Invalid expression: %s", wp->expr);
+
+    if (val != wp->prev_val) {
+      changed = true;
+      printf("Watchpoint %d: %s\n", wp->NO, wp->expr);
+      printf("\tOld value = %u\n", wp->prev_val);
+      printf("\tNew value = %u\n", val);
+      wp->prev_val = val;
+    }
+    wp = wp->next;
+  }
+  return changed;
+}
+
+void display_wp() {
+  WP *wp = head;
+  if (wp == NULL) {
+    printf("No watchpoints.\n");
+    return;
+  }
+
+  printf("Num\tWhat\n");
+  while (wp != NULL) {
+    printf("%d\t%s\n", wp->NO, wp->expr);
+    wp = wp->next;
+  }
+}

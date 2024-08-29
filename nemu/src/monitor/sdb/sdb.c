@@ -23,6 +23,9 @@ static int is_batch_mode = false;
 
 void init_regex();
 void init_wp_pool();
+void new_wp(char *expr, word_t val);
+void free_wp(int no);
+void display_wp();
 void isa_reg_display();
 word_t paddr_read(paddr_t addr, int len);
 
@@ -77,7 +80,7 @@ static int cmd_info(char *args) {
   }
 
   if (!strcmp(args, "w")) {
-    Assert(0, "Not implemented");
+    display_wp();
     return 0;
   }
 
@@ -85,11 +88,18 @@ static int cmd_info(char *args) {
 }
 
 static int cmd_x(char *args) {
-  int count, addr; // addr is an expr
-  sscanf(args, "%d %x", &count, &addr);
+  char *count_str = strtok(args, " "); // first token is count
+  char *addr_str = strtok(NULL, ""); // remaining string is address expression
+  int count, addr;
+  bool success = true;
+  sscanf(count_str, "%d", &count);
+  addr = expr(addr_str, &success);
+  if (!success) {
+    printf("Invalid expression\n");
+    return 0;
+  }
   for (int i = 0; i < count; ++i) {
     printf("%02x ", paddr_read(addr + i, 1));
-
     if ((i + 1) % 16 == 0) {
       printf("\n");
     }
@@ -100,11 +110,70 @@ static int cmd_x(char *args) {
   return 0;
 }
 
-// static int cmd_p(char *args);
+static int cmd_p(char *args) {
+  bool success = true;
+  word_t result = expr(args, &success);
+  if (success) {
+    // printf("0x%x\n", result);
+    printf("%u\n", result);
+  } else {
+    printf("Invalid expression\n");
+  }
+  return 0;
+}
 
-// static int cmd_w(char *args);
+static int cmd_test(char *args) {
+  char filename[] = "/tmp/rand-input.txt";
+  char buf[1024];
+  char *ptr;
+  word_t expected;
+  FILE *fp = fopen(filename, "r");
 
-// static int cmd_d(char *args);
+  printf("Test expression evaluate\n");
+
+  if (fp == NULL) {
+    printf(ANSI_FMT("Error: cannot open file %s\n", ANSI_FG_YELLOW), filename);
+    return 0;
+  }
+  while (fgets(buf, sizeof(buf), fp) != NULL) {
+    bool success = true;
+    ptr = strtok(buf, " ");
+    expected = strtol(ptr, NULL, 10);
+    ptr = strtok(NULL, "");
+
+    word_t result = expr(ptr, &success);
+
+    Assert(success, "Invalid expression: %s", ptr);
+    if (result == expected) {
+      printf(ANSI_FMT("Pass\n", ANSI_FG_GREEN));
+    } else {
+      printf(ANSI_FMT("Fail: expected %u, got %u\n", ANSI_FG_RED),
+        expected, result);
+    }
+  }
+  return 0;
+}
+
+static int cmd_w(char *args) {
+  bool success;
+  word_t val = expr(args, &success);
+
+  if (!success) {
+    printf("Invalid expression\n");
+    return 0;
+  }
+
+  new_wp(args, val);
+  return 0;
+}
+
+static int cmd_d(char *args) {
+  int no;
+  sscanf(args, "%d", &no);
+  free_wp(no);
+  printf("Watchpoint %d deleted\n", no);
+  return 0;
+}
 
 static int cmd_help(char *args);
 
@@ -119,9 +188,12 @@ static struct {
     {"si", "Execute one machine instruction and do count times", cmd_si},
     {"info", "Display pragram status", cmd_info},
     {"x", "Examine memory", cmd_x},
+    {"p", "Evaluate expression", cmd_p},
 
-    /* TODO: Add more commands */
+    {"test", "Test certain functionality", cmd_test},
 
+    {"w", "Add watchpoint", cmd_w},
+    {"d", "Delete watchpoint", cmd_d},
 };
 
 #define NR_CMD ARRLEN(cmd_table)

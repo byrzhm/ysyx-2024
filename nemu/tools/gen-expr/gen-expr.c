@@ -31,8 +31,96 @@ static char *code_format =
 "  return 0; "
 "}";
 
+static int pos = 0;
+static int tok_nr = 0;
+
+static int choose(int n) {
+  return rand() % n;
+}
+
+static void clear() {
+  pos = 0;
+  tok_nr = 0;
+  memset(buf, 0, sizeof(buf));
+}
+
+static void gen(char c) {
+  buf[pos++] = c;
+}
+
+static void gen_lparen() {
+  tok_nr++;
+  gen('(');
+}
+
+static void gen_rparen() {
+  tok_nr++;
+  gen(')');
+}
+
+static void gen_hex() {
+  tok_nr++;
+  gen('0');
+  gen('x');
+  gen(choose(6) + 'a');
+  for (int i = 0; i < choose(8) + 1; i++) {
+    gen(choose(16) < 10 ? choose(10) + '0' : choose(6) + 'a');
+  }
+  gen(' ');
+}
+
+static void gen_dec() {
+  tok_nr++;
+  gen(choose(9) + '1');
+  for (int i = 0; i < choose(8); i++) {
+    gen(choose(10) + '0');
+  }
+}
+
+static void gen_term() {
+  if (choose(2)) {
+    gen_dec();
+  } else {
+    gen_hex();
+  }
+}
+
+static void gen_nondiv_op() {
+  tok_nr++;
+  switch (choose(7)) {
+    case 0: gen('+'); break;
+    case 1: gen('-'); break;
+    case 2: gen('*'); break;
+    case 3: gen('&'); gen('&'); break;
+    case 4: gen('!'); gen('='); break;
+    default: gen('='); gen('='); break;
+  }
+}
+
+static void gen_norm_expr();
+
 static void gen_rand_expr() {
-  buf[0] = '\0';
+  if (tok_nr > 15) {
+    gen_term();
+    return;
+  }
+
+  switch (choose(3)) {
+    case 0: gen_term(); break;
+    case 1: gen_lparen(); gen_norm_expr(); gen_rparen(); break;
+    case 2: tok_nr += 4; gen_rand_expr(); gen('/'); gen('('); gen_rand_expr(); gen('+'); gen_dec(); gen(')'); break;
+    default: gen_rand_expr(); gen_nondiv_op(); gen_rand_expr(); break;
+  }
+}
+
+static void gen_norm_expr() {
+  if (choose(2)) {
+    gen_term();
+  } else {
+    gen_rand_expr();
+    gen_nondiv_op();
+    gen_rand_expr();
+  }
 }
 
 int main(int argc, char *argv[]) {
@@ -44,7 +132,10 @@ int main(int argc, char *argv[]) {
   }
   int i;
   for (i = 0; i < loop; i ++) {
-    gen_rand_expr();
+    do {
+      clear();
+      gen_rand_expr();
+    } while (tok_nr < 3 || tok_nr > 31 || pos > 1023);
 
     sprintf(code_buf, code_format, buf);
 
@@ -53,7 +144,7 @@ int main(int argc, char *argv[]) {
     fputs(code_buf, fp);
     fclose(fp);
 
-    int ret = system("gcc /tmp/.code.c -o /tmp/.expr");
+    int ret = system("gcc -Wno-overflow /tmp/.code.c -o /tmp/.expr");
     if (ret != 0) continue;
 
     fp = popen("/tmp/.expr", "r");
