@@ -25,6 +25,7 @@ void init_regex();
 void init_wp_pool();
 void new_wp(char *expr, word_t val);
 void free_wp(int no);
+void display_wp();
 void isa_reg_display();
 word_t paddr_read(paddr_t addr, int len);
 
@@ -79,7 +80,7 @@ static int cmd_info(char *args) {
   }
 
   if (!strcmp(args, "w")) {
-    Assert(0, "Not implemented");
+    display_wp();
     return 0;
   }
 

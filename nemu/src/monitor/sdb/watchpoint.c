@@ -102,3 +102,17 @@ bool polling_wp() {
   }
   return changed;
 }
+
+void display_wp() {
+  WP *wp = head;
+  if (wp == NULL) {
+    printf("No watchpoints.\n");
+    return;
+  }
+
+  printf("Num\tWhat\n");
+  while (wp != NULL) {
+    printf("%d\t%s\n", wp->NO, wp->expr);
+    wp = wp->next;
+  }
+}
