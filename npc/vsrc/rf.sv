@@ -28,7 +28,11 @@ module ysyx_22040000_RegisterFile #(
     always @(posedge clk)
         if (write_enable) mem[waddr] <= wdata;
 
+    reg [31:0] cycle = 0;
+
     always @(posedge clk) begin
+        $display("Cycle %0d", cycle);
+        cycle <= cycle + 1;
         for (i = 5; i <= 7; i = i + 1) begin
             $display("Reg[%0d] = %0d", i, mem[i]);
         end
