@@ -28,4 +28,10 @@ module ysyx_22040000_RegisterFile #(
     always @(posedge clk)
         if (write_enable) mem[waddr] <= wdata;
 
+    always @(posedge clk) begin
+        for (i = 0; i < 2**AWIDTH; i = i + 1) begin
+            $display("Reg[%d] = %d", i, mem[i]);
+        end
+    end
+
 endmodule
