@@ -1,6 +1,6 @@
 TOPNAME = top
 NXDC_FILES = constr/top.nxdc
-INC_PATH ?=
+INC_PATH ?= vsrc/
 
 
 BUILD_DIR = ./build
@@ -46,6 +46,9 @@ VERILATOR_FLAGS += --build -j 0
 # Add this trace to get a backtrace in gdb
 #VERILATOR_FLAGS += --gdbbt
 
+# Disable Warning
+VERILATOR_FLAGS += -Wno-DECLFILENAME
+
 default: $(BIN)
 
 $(shell mkdir -p $(BUILD_DIR))
@@ -72,6 +75,7 @@ $(BIN): $(VSRCS) $(CSRCS) $(NVBOARD_ARCHIVE)
 	$(VERILATOR) $(VERILATOR_FLAGS) \
 		--top-module $(TOPNAME) $^ \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
+		$(INCFLAGS) \
 		--Mdir $(OBJ_DIR) -o $(abspath $(BIN))
 
 all: default
