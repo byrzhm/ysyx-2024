@@ -30,7 +30,7 @@ module ysyx_22040000_RegisterFile #(
 
     always @(posedge clk) begin
         for (i = 0; i < 2**AWIDTH; i = i + 1) begin
-            $display("Reg[%d] = %d", i, mem[i]);
+            $display("Reg[%0d] = %0d", i, mem[i]);
         end
     end
 
