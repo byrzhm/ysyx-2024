@@ -32,6 +32,7 @@ static uint32_t pmem_read(uint32_t addr) {
 }
 
 static const uint32_t img [] = {
+  0x00000013, // nop
   0x06400293, // t0 <- 100
   0x0C800313, // t1 <- 200
   0x006283B3, // t2 <- t0 + t1

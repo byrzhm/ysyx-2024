@@ -29,7 +29,7 @@ module ysyx_22040000_RegisterFile #(
         if (write_enable) mem[waddr] <= wdata;
 
     always @(posedge clk) begin
-        for (i = 0; i < 2**AWIDTH; i = i + 1) begin
+        for (i = 5; i <= 7; i = i + 1) begin
             $display("Reg[%0d] = %0d", i, mem[i]);
         end
     end
